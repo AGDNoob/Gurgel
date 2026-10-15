@@ -32,6 +32,7 @@ Die JavaScript-Module benötigen einen HTTP-Server. `index.html` direkt als `fil
 - Instakram und Fazebook: wechselnde Feeds, Stories, lokale Beiträge, Kommentare und Likes.
 - Lieferlahm: 16 Gerichte und Restaurants, Preisaufschlüsselung, lokale Spaßbestellungen und Mailbestätigungen. Beispielsweise Vada Pav für 0,80 € aus Mumbai mit 223,50 € Versand und erfundener Flugzeit. Es wird kein echter Standort ermittelt.
 - Nixflix: 14 langweilige Serien, Episodenlisten, Merkliste und stumme animierte Vorschauen.
+- Twatsch: ein einzelner ausführlicher Kanal, **FinnBaut**. Der 20-Cent-PC wird an einer animierten Werkbank zusammengebaut. Strom, HDMI-Anschluss, Monitororientierung, RAM, Schutzfolie, Paste, SSD, Installation, Treiber und Belastungstest haben eigene Zustände. Chat-Tipps wirken verzögert, Korrekturen beziehen sich auf vorherige Nachrichten, frühere Fehler werden später wieder aufgegriffen. Zwölf Stammzuschauer, mehrteilige Nebenunterhaltungen, wirksame Abstimmungen, Kamera-Einlösungen und Kaffeepausen begleiten den Ablauf. Ohne Hilfe findet Finn selbst weiter. Der Stream wird lokal gespeichert und bei Rückkehr fortgesetzt. [Direkt zum Kanal](https://agdnoob.github.io/Gurgel/#/site/twatsch).
 - Absurd formulierte Zustimmung beim ersten Start mit deutlich erklärter Parodie. Kein Zugriff auf den PC, keine echten Berechtigungsabfragen, Passwörter oder Kartennummern. Das Zahlungsprofil besteht ausschließlich aus einer nicht funktionsfähigen Beispielkarte.
 - Kurze Skeleton-Ladephasen, in den Einstellungen abschaltbar. Bewegungen respektieren `prefers-reduced-motion`.
 
@@ -57,6 +58,10 @@ Relative Assetpfade und Hash-Routing funktionieren unter `https://agdnoob.github
 - `world-state.js`: unabhängige Konto-, Postfach-, Bestell- und Formularlogik mit prüfbaren Fristen.
 - `portals.js`: Startseiten, Anbieteroberflächen und Verbindung zum lokalen Spaßkonto.
 - `portals.css`: Layouts der zusätzlichen Anbieter und ihrer Startseiten.
+- `twatsch-engine.js`: unabhängige Stream-Simulation, Hardware, Zeit, Chat-Absichten, Abstimmungen und Erinnerung.
+- `twatsch-content.js`: Kanal, Stammzuschauer, handgeschriebene Dialoge und Nebenunterhaltungen.
+- `twatsch-scene.js`: animierte Canvas-Werkbank und lokal erzeugte Lüfter-, Werkbank- und Alert-Geräusche.
+- `twatsch.js` / `twatsch.css`: Player, Live-Chat, Kanalpunkte, lokale Speicherung und responsive Twatsch-Oberfläche. Details: [Twatsch entwickeln](docs/twatsch.md).
 - `styles.css`: Layouts der Suchmaschine und einzelnen Parodieseiten.
 - `assets/`: selbst gezeichnete lokale SVG-Produktbilder.
 - `scripts/assets.mjs`: reproduziert diese Illustrationen.
@@ -67,7 +72,7 @@ Relative Assetpfade und Hash-Routing funktionieren unter `https://agdnoob.github
 npm test
 ```
 
-Die Tests prüfen außerdem Kontotrennung, Mail-Takt, Bestell- und Videoverlauf, Formularvalidierung und Fristablauf, Wiederherstellung, verschiedene Laufzeiten und die Häufigkeit des seltenen Clips.
+Die Tests prüfen außerdem Kontotrennung, Mail-Takt, Bestell- und Videoverlauf, Formularvalidierung und Fristablauf, Wiederherstellung, verschiedene Laufzeiten und die Häufigkeit des seltenen Clips. Twatsch wird mit virtueller Zeit über längere Verläufe geprüft: Hardware-Folgen, Abkühlung, Installation und Neustarts, Chat-Korrekturen, Negationen, Abstimmungen, Punkte, Spam-Bremse, Nebenunterhaltungen und Wiederaufnahme.
 
 ## Datenquelle der Städte
 
@@ -75,4 +80,4 @@ Quelle: [Statistisches Bundesamt, GV-ISys, Jahresausgabe 31.12.2025](https://www
 
 Mit `scripts/import-cities.py` lässt sich der Katalog aus der heruntergeladenen Jahresdatei neu erzeugen. Nur zum Import ist Python mit `openpyxl` nötig; die Website lädt das fertige lokale JavaScript-Modul.
 
-Suchanfragen bleiben im Browser und stehen in der URL. Spaßkonten, Postfächer, Bestellungen, gestartete Videos, Formularentwürfe, Beiträge, Kommentare, Einstellungen und Warenkorb werden in `localStorage` gespeichert. Die Vorlagenerinnerung enthält nur Vorlagenkennungen und einen Hash der Suchanfrage im `sessionStorage` des aktuellen Tabs. Alle lokalen Daten lassen sich unter Datenschutz löschen. Es wird kein vollständiger Suchverlauf gespeichert. Keine externen Nachrichten, Browser-Notifications, echten Standortdaten oder Zahlungsdaten.
+Suchanfragen bleiben im Browser und stehen in der URL. Spaßkonten, Postfächer, Bestellungen, gestartete Videos, Formularentwürfe, Beiträge, Kommentare, Einstellungen, Warenkorb sowie Twatsch-Chat und Streamfortschritt werden in `localStorage` gespeichert. Die Vorlagenerinnerung enthält nur Vorlagenkennungen und einen Hash der Suchanfrage im `sessionStorage` des aktuellen Tabs. Alle lokalen Daten lassen sich unter Datenschutz löschen. Es wird kein vollständiger Suchverlauf gespeichert. Keine externen Nachrichten, Browser-Notifications, echten Standortdaten oder Zahlungsdaten.

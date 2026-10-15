@@ -5,6 +5,7 @@ import { articleCopy } from './news-copy.js';
 import { extraSites, clockTime, shuffled } from './world-content.js';
 import { createPortals } from './portals.js';
 import { variedCopy } from './parody-copy.js';
+import { mountTwatsch, clearTwatsch } from './twatsch.js';
 const sites = { ...searchSites, ...extraSites };
 
 const app = document.querySelector('#app');
@@ -40,6 +41,7 @@ let chatState = createChatState();
 let chatVersion = 0;
 let playback = 0;
 let disposeVideoScene = null;
+let disposeTwatsch = null;
 let profile = null;
 let settings = readStorage('gurgel-settings', { loading: true });
 let cart = readStorage('gurgel-cart', []);
@@ -305,6 +307,8 @@ function parseRoute() {
   return { path: path || '/', query, seed, page, tab, site: path?.split('/')[2], id: values.get('id'), offer: values.has('offer') ? Number(values.get('offer')) : null };
 }
 function renderRoute() {
+  disposeTwatsch?.();
+  disposeTwatsch = null;
   portals.cleanup();
   disposeVideoScene?.();
   disposeVideoScene = null;
@@ -332,6 +336,7 @@ function renderRoute() {
   const finish = () => {
     if (version !== routeVersion) return;
     if (!route.site) { rememberSearch(current.model, route.seed, route.page); renderResults(); portals.afterRender(); return; }
+    if (route.site === 'twatsch') { disposeTwatsch = mountTwatsch({ app, dialog, escape, homeURL, portals, toast }); portals.afterRender(); return; }
     if (extraSites[route.site] || !route.id) { if (portals.renderHome(route.site, route)) { portals.afterRender(); return; } }
     const result = current.model.results.find(item => item.id === route.id && item.site === route.site) || current.model.results.find(item => item.site === route.site) || current.model.results[0];
     current.result = portals.catalogResult(route.site, route.id, route.seed) || { ...result, site: route.site };
@@ -437,8 +442,8 @@ document.addEventListener('click', async event => {
     case 'about': openDialog('Gurgel', '<p>Du suchst. Wir wissen’s besser.</p><p>Eine Suchmaschine mit sehr vielen Ergebnissen und einem eher lockeren Verhältnis zur Aufgabenstellung.</p><p>YouTuba, Buyazon, Wickipedia und ChatGPP gehören zu diesem erfundenen kleinen Internet.</p>'); break;
     case 'about-search': openDialog('Wie die Suche funktioniert', `<p>${catalog.filter(item => item.category === 'food').length} Lebensmittel, ${catalog.filter(item => item.category === 'person').length} Personen und ${catalog.filter(item => item.category === 'car').length} Auto-Einträge haben hinterlegte Suchbegriffe. Dazu ${catalog.filter(item => item.category === 'city').length} Städte über 30.000 Einwohner (Stand 31.12.2025) und ${catalog.filter(item => item.category === 'everyday').length} typische Suchthemen.</p><p>Ein Regelalgorithmus kombiniert handgeschriebene Situationen. Auch unbekannte Eingaben bekommen Ergebnisse. Neue Suchen meiden kürzlich verwendete Vorlagen. Zurück und geteilte Links behalten ihre ursprünglichen Treffer.</p><p>Keine KI. Keine echte Websuche.</p>`); break;
     case 'parody': openDialog('Ein sehr kleines, erfundenes Internet', '<p>Gurgel und alle verlinkten Seiten sind Parodien. Produkte, Angebote, Meldungen, Bewertungen und enzyklopädische Texte sind erfunden.</p><p>Bei prominenten Personen sind diese Texte keine biografischen Angaben. Alle Links bleiben innerhalb dieser Website.</p>'); break;
-    case 'privacy': openDialog('Datenschutz', '<p>Deine Suchanfragen werden hier im Browser verarbeitet. Es gibt keine Analyse-Tracker und keine KI-Anfragen.</p><p>Spaßkonten, Postfächer, Bestellungen, Videoverlauf, Anträge, Beiträge, Einstellungen und Einkaufswagen werden lokal gespeichert. Echte Passwörter, Kreditkarten oder Standortdaten werden nicht erfasst. Der aktuelle Tab merkt sich außerdem verwendete Witzvorlagen, um Wiederholungen zu meiden. Dabei werden keine vollständigen Suchanfragen gespeichert. Deine Suche steht außerdem in der URL und bleibt beim Teilen sichtbar.</p><p>Beim veröffentlichten Aufruf fallen die üblichen Verbindungsdaten beim Website-Host an.</p><button class="primary-button" data-action="clear-data">Lokale Daten löschen</button>'); break;
-    case 'clear-data': ['gurgel-profile', 'gurgel-settings', 'gurgel-cart'].forEach(key => { try { localStorage.removeItem(key); } catch {} }); portals.reset(); profile = null; settings = { loading: true }; cart = []; recentSearches = []; try { sessionStorage.removeItem('gurgel-pattern-memory-v2'); } catch {} dialog.close(); renderRoute(); toast('Lokale Gurgel-Daten gelöscht.'); break;
+    case 'privacy': openDialog('Datenschutz', '<p>Deine Suchanfragen werden hier im Browser verarbeitet. Es gibt keine Analyse-Tracker und keine KI-Anfragen.</p><p>Spaßkonten, Postfächer, Bestellungen, Videoverlauf, Anträge, Beiträge, Twatsch-Chat und Streamfortschritt, Einstellungen und Einkaufswagen werden lokal gespeichert. Echte Passwörter, Kreditkarten oder Standortdaten werden nicht erfasst. Der aktuelle Tab merkt sich außerdem verwendete Witzvorlagen, um Wiederholungen zu meiden. Dabei werden keine vollständigen Suchanfragen gespeichert. Deine Suche steht außerdem in der URL und bleibt beim Teilen sichtbar.</p><p>Beim veröffentlichten Aufruf fallen die üblichen Verbindungsdaten beim Website-Host an.</p><button class="primary-button" data-action="clear-data">Lokale Daten löschen</button>'); break;
+    case 'clear-data': disposeTwatsch?.(); disposeTwatsch = null; clearTwatsch(); ['gurgel-profile', 'gurgel-settings', 'gurgel-cart'].forEach(key => { try { localStorage.removeItem(key); } catch {} }); portals.reset(); profile = null; settings = { loading: true }; cart = []; recentSearches = []; try { sessionStorage.removeItem('gurgel-pattern-memory-v2'); } catch {} dialog.close(); renderRoute(); toast('Lokale Gurgel-Daten gelöscht.'); break;
     case 'terms': openDialog('Nutzungsbedingungen', '<p>§ 1: Sie dürfen suchen.</p><p>§ 2: Die Ergebnisse dürfen etwas anderes vorhaben.</p><p>§ 3: Käufe und Nachrichten sind lokale Simulationen. Es entstehen keine Bestellungen, Zahlungen oder externen Nachrichten.</p>'); break;
     case 'settings': openDialog('Einstellungen', `<label class="setting-row"><input id="loading-setting" type="checkbox" ${settings.loading ? 'checked' : ''}> Kurze Ladephasen anzeigen</label><p>Skeleton-Loader und ein kleiner Moment Wartezeit, wie bei echten Seiten.</p><p>Bewegungen werden bei aktivierter Systemeinstellung für reduzierte Bewegung abgeschaltet.</p>`); break;
     case 'language': toast('English queries work too. Die Ergebnisse haben noch Deutschunterricht.'); app.querySelector('input[name="q"]').focus(); break;

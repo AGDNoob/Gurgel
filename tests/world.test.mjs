@@ -95,7 +95,7 @@ test('YouTuba hat echte unterschiedliche Laufzeiten, Kanäle, Genres und seltene
 test('Bewertungen, Essen und Serien sind unterschiedlich und verwenden vorhandene Bilder', () => {
   const reviews = products.map(product => productReviews(product, 71).map(row => row.name).join(','));
   assert.equal(new Set(reviews).size, products.length);
-  assert.ok(meals.length >= 16); assert.ok(series.length >= 14); assert.equal(Object.keys(extraSites).length, 6);
+  assert.ok(meals.length >= 16); assert.ok(series.length >= 14); assert.equal(Object.keys(extraSites).length, 7);
   const mumbai = meals.find(meal => meal.title.includes('Mumbai'));
   assert.equal(mumbai.price, .8); assert.equal(mumbai.shipping, 223.5); assert.ok(mumbai.minutes > 500);
   for (const row of [...products, ...meals, ...series]) assert.ok(existsSync(new URL(`../assets/${row.asset}.svg`, import.meta.url)), row.asset);

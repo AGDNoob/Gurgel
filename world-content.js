@@ -5,7 +5,8 @@ export const extraSites = {
   instakram: { name: 'Instakram', domain: 'instakram.invalid', color: '#be3278', letter: '◎', path: 'feed' },
   fazebook: { name: 'Fazebook', domain: 'fazebook.invalid', color: '#0866ff', letter: 'f', path: 'feed' },
   lieferlahm: { name: 'Lieferlahm', domain: 'lieferlahm.invalid', color: '#f36805', letter: 'L', path: 'speisekarte' },
-  nixflix: { name: 'Nixflix', domain: 'nixflix.invalid', color: '#e50914', letter: 'N', path: 'serien' }
+  nixflix: { name: 'Nixflix', domain: 'nixflix.invalid', color: '#e50914', letter: 'N', path: 'serien' },
+  twatsch: { name: 'Twatsch', domain: 'twatsch.invalid', color: '#9146ff', letter: '▣', path: 'FinnBaut' }
 };
 export function hash(value) { return [...String(value)].reduce((n, c) => Math.imul(n ^ c.codePointAt(0), 16777619) >>> 0, 2166136261); }
 export function rng(seed) { let n = seed >>> 0; return () => { n += 0x6D2B79F5; let t = Math.imul(n ^ n >>> 15, 1 | n); t ^= t + Math.imul(t ^ t >>> 7, 61 | t); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
