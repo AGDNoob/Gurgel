@@ -2,7 +2,7 @@
 
 Eine statische Suchmaschinen-Parodie mit regelbasierten Ergebnissen. HTML, CSS und JavaScript, ohne KI, API, externe Bilder, Tracker oder Laufzeit-Abhängigkeiten.
 
-**Website:** [Gurgel öffnen](https://agdnoob.github.io/Gorilla/) · **Repository:** [AGDNoob/Gorilla](https://github.com/AGDNoob/Gorilla)
+**Website:** [Gurgel öffnen](https://agdnoob.github.io/Gurgel/) · **Repository:** [AGDNoob/Gurgel](https://github.com/AGDNoob/Gurgel)
 
 ## Lokal starten
 
@@ -39,9 +39,9 @@ Alle Anbieter, Angebote, Meldungen und biografisch wirkenden Texte auf den Parod
 
 ## GitHub Pages
 
-Das öffentliche Repository heißt **AGDNoob/Gorilla**. GitHub Pages veröffentlicht den Branch **main** aus **/(root)**. Neue Pushes auf `main` aktualisieren die Website automatisch. `index.html` und `.nojekyll` liegen im Stammverzeichnis. Es ist kein eigener Build erforderlich.
+Das öffentliche Repository heißt **AGDNoob/Gurgel**. GitHub Pages veröffentlicht den Branch **main** aus **/(root)**. Neue Pushes auf `main` aktualisieren die Website automatisch. `index.html` und `.nojekyll` liegen im Stammverzeichnis. Es ist kein eigener Build erforderlich.
 
-Relative Assetpfade und Hash-Routing funktionieren unter `https://agdnoob.github.io/Gorilla/`, ohne Server-Rewrite oder spezielle 404-Seite. Der Name der Suchmaschine bleibt Gurgel.
+Relative Assetpfade und Hash-Routing funktionieren unter `https://agdnoob.github.io/Gurgel/`, ohne Server-Rewrite oder spezielle 404-Seite.
 
 ## Weiterentwickeln
 
