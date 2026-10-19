@@ -17,6 +17,7 @@ Die JavaScript-Module benötigen einen HTTP-Server. `index.html` direkt als `fil
 ## Enthalten
 
 - Vertraute Startseite und Ergebnislisten, Autocomplete mit Tastatursteuerung, Bilder-, Shopping-, Video- und News-Filter, weitere Ergebnisseiten.
+- Moderne Ergebnisseite: Die „Gurgel-Übersicht“ fasst drei echte Treffer der Seite selbstbewusst zusammen, erstellt ohne KI von Praktikant Kevin. Dazu gesponserte Anzeigen erfundener Werbetreibender (`.invalid`-Domains), „Ähnliche Fragen“, die beim Aufklappen wie beim Original immer weitere Fragen nachladen und dabei langsam vom Thema abdriften, und ein Knowledge Panel für Städte, Personen, Autos, Lebensmittel und Geräte. Städte zeigen echte Einwohnerzahlen und Postleitzahlen, Personen ausschließlich offensichtlich erfundene Meta-Angaben.
 - Breiter deutscher/englischer Lebensmittelkatalog sowie prominente Personen und Autos. Unbekannte Eingaben funktionieren ebenfalls.
 - 396 deutsche Städte mit mehr als 30.000 Einwohnern, einschließlich Umlautschreibweisen, häufigen Kurzformen und einigen englischen Städtenamen.
 - 46 Alltagsthemen wie Wetter, Paketverfolgung, Übersetzen, WLAN, Steuererklärung, Wohnen, Schlafen und Druckerprobleme. Suchabsicht und Ort werden getrennt erkannt, etwa bei „Wetter in München“.
@@ -61,6 +62,7 @@ Das Vorschaubild für geteilte Links (`assets/og-image.png`, 1200 × 630) erzeug
 - `search-content.js`: Alltagsthemen, neue Geschichten, Stadtergebnisse und Lebensmittelpointen.
 - `engine.js`: Erkennung, Kombination und Auswahl weniger oft verwendeter Ergebnisvorlagen.
 - `chat-engine.js`: unabhängige, mehrstufige Gesprächszustände für ChatGPP.
+- `serp.js` / `serp-content.js`: Gurgel-Übersicht, Anzeigen, Ähnliche Fragen und Knowledge Panel. Die Auswahl ist pro Seed deterministisch.
 - `video-scenes.js`: lokale Animationen, gesteuert durch den Video-Player.
 - `news-copy.js`: verschiedene Formen und Texte der regionalen Meldungen.
 - `app.js`: Routing, Darstellung und Interaktionen.

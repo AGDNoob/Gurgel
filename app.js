@@ -6,6 +6,7 @@ import { extraSites, clockTime, shuffled } from './world-content.js';
 import { createPortals } from './portals.js';
 import { variedCopy } from './parody-copy.js';
 import { mountTwatsch, clearTwatsch } from './twatsch.js';
+import { buildSerp, serpView, INITIAL_QUESTIONS } from './serp.js';
 const sites = { ...searchSites, ...extraSites };
 
 const app = document.querySelector('#app');
@@ -73,6 +74,8 @@ function search(query, options = {}) {
   location.hash = routeURL(query.trim(), { ...options, seed });
 }
 function resultURL(result) { return routeURL(current.query, { ...current, site: result.site, id: result.id, offer: result.offer }); }
+const serpParts = serpView({ escape, icon, sites, resultURL, routeURL: query => routeURL(query), wikiURL: id => routeURL(current.query, { ...current, site: 'wickipedia', id }) });
+const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 function image(result, className = '', invisible = false) {
   return `<img class="${className}${invisible ? ' invisible-product' : ''}" src="./assets/${result.asset}.svg" alt="${escape(invisible ? 'Unsichtbares Produkt, weißes Produktbild' : `Produktillustration: ${result.topic.name}`)}" width="480" height="340" loading="lazy">`;
 }
@@ -114,6 +117,10 @@ function source(result) {
   const site = siteInfo(result.site, result);
   return `<div class="result-source"><span class="site-favicon" style="--site-color:${site.color}">${escape(site.letter)}</span><div><span class="source-name">${site.name}</span><span class="source-url">https://${site.domain} › ${site.path} › ${escape(result.topic.name.toLowerCase().replaceAll(' ', '-'))}</span></div><button class="result-more" data-action="result-info" aria-label="Informationen zu diesem Ergebnis">⋮</button></div>`;
 }
+function serpAd(key = '') {
+  const [slot, index] = key.split('-');
+  return current?.serp?.ads[slot]?.[Number(index)];
+}
 function resultRow(result) {
   return `<article class="search-result">${source(result)}${result.site === 'youtuba' ? `<a class="video-result-media" href="${resultURL(result)}">${thumbnail(result, true)}</a>` : ''}<a class="result-title" href="${resultURL(result)}">${escape(result.title)}</a><p class="result-description">${escape(result.description)}</p>${result.site === 'buyazon' ? `<div class="result-rating"><span class="stars">★★★★<span>★</span></span> ${result.stars.replace('.', ',')} (${result.reviews.toLocaleString('de-DE')}) · ${money(result.price)} · Auf Lager</div>` : result.site === 'youtuba' ? `<div class="result-meta">${result.views} Aufrufe · ${result.age}</div>` : ''}${result.site === 'wickipedia' ? `<div class="sitelinks"><a href="${resultURL(result)}">Geschichte</a><span>·</span><a href="${resultURL(result)}">Verwendung</a><span>·</span><a href="${resultURL(result)}">Diskussion</a></div>` : ''}</article>`;
 }
@@ -149,9 +156,25 @@ function renderResults(loading = false) {
     contents = `<div class="shopping-results">${always.map(result => `<a class="shopping-item" href="${resultURL(result)}">${image(result, '', /unsichtbar/i.test(result.title))}<p>${escape(result.title)}</p><strong>${money(result.price)}</strong><small>Buyazon · kostenloser Versand</small><span class="stars">★★★★☆</span></a>`).join('')}</div>`;
   } else {
     const filtered = current.tab === 'all' ? model.results : model.results.filter(result => result.site === (current.tab === 'videos' ? 'youtuba' : 'news'));
-    contents = `<div class="results-list">${current.tab === 'all' ? portals.searchExtras(current.query) : ''}${filtered.map(resultRow).join('')}</div>${relatedBlock(model)}`;
+    const serp = current.tab === 'all' ? current.serp : null;
+    const first = serp && current.page === 1;
+    const rows = filtered.map(resultRow);
+    if (first) rows.splice(2, 0, serpParts.questions(serp, current.paaShown));
+    const panel = first ? serpParts.panel(serp) : '';
+    contents = `<div class="serp-layout${panel ? ' has-panel' : ''}"><div class="results-list">${current.tab === 'all' ? portals.searchExtras(current.query) : ''}${first ? serpParts.overview(serp, model.results, !current.overviewReady) : ''}${serp ? serpParts.ads(serp.ads.top, 'top') : ''}${rows.join('')}${serp ? serpParts.ads(serp.ads.bottom, 'bottom') : ''}</div>${panel}</div>${relatedBlock(model)}`;
+    if (first && !current.overviewReady) {
+      const version = routeVersion;
+      const reveal = () => {
+        if (version !== routeVersion) return;
+        current.overviewReady = true;
+        const template = document.createElement('template');
+        template.innerHTML = serpParts.overview(serp, model.results);
+        app.querySelector('.gurgel-overview')?.replaceWith(template.content);
+      };
+      if (settings.loading && !reducedMotion()) setTimeout(reveal, 900 + Math.random() * 500); else queueMicrotask(reveal);
+    }
   }
-  app.innerHTML = `<div class="results-page">${searchHeader()}<main class="results-main ${['images', 'shopping'].includes(current.tab) ? 'wide-results' : ''}"><p class="results-stats">${loading ? 'Ergebnisse werden geladen …' : `Ungefähr ${model.count.toLocaleString('de-DE')} Ergebnisse (${model.seconds.replace('.', ',')} Sekunden)`}</p>${contents}</main>${footer()}</div>`;
+  app.innerHTML = `<div class="results-page">${searchHeader()}<main class="results-main ${['images', 'shopping'].includes(current.tab) ? 'wide-results' : ''}${!loading && current.tab === 'all' && current.page === 1 && current.serp?.panel ? ' with-panel' : ''}"><p class="results-stats">${loading ? 'Ergebnisse werden geladen …' : `Ungefähr ${model.count.toLocaleString('de-DE')} Ergebnisse (${model.seconds.replace('.', ',')} Sekunden)`}</p>${contents}</main>${footer()}</div>`;
 }
 function siteInfo(site, result = current?.result) {
   if (site === 'news' && !current?.id) return sites.news;
@@ -327,7 +350,8 @@ function renderRoute() {
     portals.afterRender(); return;
   }
   if (route.path !== '/search' && (!route.path.startsWith('/site/') || !sites[route.site])) { location.hash = '#/'; return; }
-  current = { ...route, model: generateResults(route.query, route.seed, route.page) };
+  current = { ...route, model: generateResults(route.query, route.seed, route.page), paaShown: INITIAL_QUESTIONS, overviewReady: false };
+  current.serp = buildSerp(current.model, route.seed);
   current.model.results = current.model.results.map(result => result.site === 'youtuba' ? portals.decorateVideo(result, route.seed) : result);
   if (!new URLSearchParams(location.hash.split('?')[1]).has('s')) history.replaceState(null, '', routeURL(route.query, route));
   window.scrollTo(0, 0);
@@ -485,6 +509,36 @@ document.addEventListener('click', async event => {
     case 'copy-chat': try { await navigator.clipboard.writeText(button.dataset.text); toast('Antwort kopiert. Vielleicht hilft sie jemand anderem.'); } catch { toast('Bitte die Antwort markieren und kopieren.'); } break;
     case 'chat-feedback': button.textContent = 'Wie erwartet'; button.disabled = true; break;
     case 'save-ad': button.textContent = 'Gemerkt'; toast('Wir haben uns gemerkt, dass du dir das merken wolltest.'); break;
+    case 'overview-more': { const more = app.querySelector('.overview-more'); const open = more.hidden; more.hidden = !open; button.setAttribute('aria-expanded', String(open)); button.firstChild.textContent = open ? 'Weniger anzeigen ' : 'Mehr anzeigen '; break; }
+    case 'overview-feedback': app.querySelectorAll('[data-action="overview-feedback"]').forEach(item => { item.disabled = true; }); button.classList.add('chosen'); toast(button.dataset.vote === 'up' ? 'Danke. Kevin wurde gelobt und liest jetzt noch schneller.' : 'Danke. Kevin liest ab sofort auch die zweite Zeile.'); break;
+    case 'ad-open': { const ad = serpAd(button.dataset.ad); if (ad) openDialog(ad.advertiser, `<p class="ad-redirect">Weiterleitung zu www.${escape(ad.domain)} …</p><p>${escape(ad.note)}</p><p><a class="filter-choice" href="${homeURL('buyazon', { q: current.model.topic.name })}">Stattdessen bei Buyazon suchen</a></p>`); break; }
+    case 'ad-why': { if (serpAd(button.dataset.ad)) openDialog('Warum sehe ich diese Anzeige?', `<p>Weil Sie nach „${escape(current.query)}“ gesucht haben.</p><p>Außerdem passen Sie laut unseren Daten in die Zielgruppe „Menschen mit Bildschirm“.</p><p>Personalisierte Werbung gibt es bei Gurgel nicht. Diese Anzeige ist nur zufällig so passend.</p><button class="filter-choice" data-action="ad-hide" data-ad="${escape(button.dataset.ad)}">Anzeige ausblenden</button>`); break; }
+    case 'ad-hide': { dialog.close(); const article = app.querySelector(`.serp-ad[data-ad="${CSS.escape(button.dataset.ad)}"]`); if (article) article.innerHTML = '<p class="ad-hidden">Anzeige ausgeblendet. Eine neue ist bereits unterwegs.</p>'; break; }
+    case 'paa-toggle': {
+      const answer = app.querySelector(`#paa-answer-${button.dataset.index}`);
+      const open = answer.hidden;
+      answer.hidden = !open;
+      button.setAttribute('aria-expanded', String(open));
+      if (open && !button.dataset.grown) {
+        // Wie beim Original: Jede geöffnete Frage hängt zwei weitere an. Irgendwann driften sie ab.
+        button.dataset.grown = 'true';
+        const next = current.serp.questions.slice(current.paaShown, current.paaShown + 2);
+        app.querySelector('.paa-list').insertAdjacentHTML('beforeend', next.map((item, i) => serpParts.question(item, current.paaShown + i)).join(''));
+        current.paaShown += next.length;
+        if (!next.length) app.querySelector('.paa-end').hidden = false;
+      }
+      break;
+    }
+    case 'kp-action': {
+      const name = current.serp.panel.title;
+      if (button.dataset.kind === 'Route') toast(`Route nach ${name} berechnet: Losfahren, bis die Schilder ${name} sagen.`);
+      else if (button.dataset.kind === 'Speichern') { button.textContent = 'Gespeichert'; toast('Gespeichert. Dort, wo du es nie wieder suchst.'); }
+      else { try { await navigator.clipboard.writeText(location.href); toast(`Link zu ${name} kopiert.`); } catch { toast(`${name} lässt sich gerade nicht teilen. Es bleibt vorerst hier.`); } }
+      break;
+    }
+    case 'kp-claim': openDialog('Panel beanspruchen', `<p>Sie möchten bestätigen, dass Sie ${escape(current.serp.panel.title)} sind.</p><p>Bitte halten Sie dazu Ihr Gesicht vor den Bildschirm und lächeln Sie.</p><p>Wir sehen nichts. Das spricht für Sie, beweist aber nichts. Eine Kamera wurde selbstverständlich nicht eingeschaltet.</p><button class="filter-choice" data-action="close-dialog">Später erneut lächeln</button>`); break;
+    case 'kp-feedback': openDialog('Feedback geben', '<p>Was stimmt an diesem Panel nicht?</p>' + ['Die Angaben sind falsch', 'Die Angaben sind zu richtig', 'Das Bild bin nicht ich', 'Ich wollte nur klicken'].map(text => `<button class="filter-choice" data-action="kp-feedback-choice">${text}</button>`).join('')); break;
+    case 'kp-feedback-choice': dialog.close(); toast('Danke. Wir haben das Feedback an das Panel weitergeleitet. Es zeigt sich einsichtig.'); break;
     case 'news-local': search(current.query, { tab: 'news' }); break;
     case 'news-economy': search('Büroklammer', { tab: 'news' }); break;
     case 'news-subscribe': openDialog('Tagesblatt Plus', '<p>Sie haben den vollständigen Artikel bereits gelesen.</p><p>Mit Plus könnten Sie ihn noch einmal lesen.</p><button class="primary-button" data-action="close-dialog">Einmal reicht</button>'); break;
