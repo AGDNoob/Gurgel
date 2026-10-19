@@ -44,6 +44,16 @@ Das öffentliche Repository heißt **AGDNoob/Gurgel**. GitHub Pages veröffentli
 
 Relative Assetpfade und Hash-Routing funktionieren unter `https://agdnoob.github.io/Gurgel/`, ohne Server-Rewrite oder spezielle 404-Seite.
 
+GitHub Pages lässt Browser jede Datei zehn Minuten zwischenspeichern. Damit nach einem Push keine alten und neuen Module gemischt werden, verweist `index.html` auf Stylesheets und Module mit Inhalts-Hash (`app.js?v=…`). Eine Import-Map leitet die relativen Importe der Module auf dieselben Versionen um. Vor jedem Commit, der JavaScript oder CSS ändert:
+
+```sh
+npm run stamp
+```
+
+`npm test` schlägt fehl, wenn `index.html` nicht mehr zu den Dateien passt.
+
+Das Vorschaubild für geteilte Links (`assets/og-image.png`, 1200 × 630) erzeugt `node scripts/og-image.mjs` mit einem lokalen Chrome oder Edge im Headless-Modus.
+
 ## Weiterentwickeln
 
 - `data.js`: Katalog, Suchbegriffe, Seitenmarken und spezifische Pointen.
@@ -67,6 +77,8 @@ Relative Assetpfade und Hash-Routing funktionieren unter `https://agdnoob.github
 - `scripts/assets.mjs`: reproduziert diese Illustrationen.
 - `scripts/food-assets.mjs`: reproduziert die sechs Speiseillustrationen.
 - `scripts/portal-clips.mjs`: reproduziert die zusätzlichen stummen MP4-Clips mit FFmpeg. FFmpeg wird nur zum Erstellen benötigt, nicht von der Website.
+- `scripts/stamp.mjs`: schreibt die versionierten Stylesheets, die Import-Map und das Startmodul in `index.html`.
+- `scripts/og-image.mjs`: erzeugt das Open-Graph-Vorschaubild.
 
 ```sh
 npm test
