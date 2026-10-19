@@ -22,7 +22,7 @@ Die JavaScript-Module benötigen einen HTTP-Server. `index.html` direkt als `fil
 - 396 deutsche Städte mit mehr als 30.000 Einwohnern, einschließlich Umlautschreibweisen, häufigen Kurzformen und einigen englischen Städtenamen.
 - 46 Alltagsthemen wie Wetter, Paketverfolgung, Übersetzen, WLAN, Steuererklärung, Wohnen, Schlafen und Druckerprobleme. Suchabsicht und Ort werden getrennt erkannt, etwa bei „Wetter in München“.
 - Handgeschriebene thematische Pointen, Kategorie-Regeln und wechselnde Reihenfolgen. Eine lokale Erinnerung an verwendete Vorlagen reduziert Wiederholungen auch zwischen verschiedenen Suchbegriffen. Der ausgewählte Seed in der URL hält Ergebnisse beim Zurückgehen und Teilen stabil.
-- YouTuba mit 24 Startseiten-Videos, verschiedenen Kanälen und Genres, wechselnden Kommentaren und echten Laufzeiten von 3, 8, 12, 30 und 45 Sekunden. Eigene Animationen folgen der tatsächlichen Video-Zeit und reagieren auf Pause und Seek. Auf 2 % der Startseiten erscheint ein seltener tatsächlich hilfreicher Clip (Wahrscheinlichkeit 0,02).
+- YouTuba mit 24 Startseiten-Videos, verschiedenen Kanälen und Genres, wechselnden Kommentaren und echten Laufzeiten von 3, 8, 12, 30 und 45 Sekunden. Jedes Startseiten-Video hat ein eigenes Drehbuch mit Untertiteln, Facecam, Meme-Texten, Kamerazooms und einer Pointe, die zum Titel passt. Lange Videos haben eine Sponsor-Einblendung mit „Sponsor überspringen“-Knopf, Abo-Bettelei und Endscreen. Videos aus der Suche werden passend zu ihrem Titelmuster zusammengesetzt. Alles folgt der tatsächlichen Video-Zeit und reagiert auf Pause und Seek. Auf 2 % der Startseiten erscheint ein seltener tatsächlich hilfreicher Clip (Wahrscheinlichkeit 0,02).
 - Buyazon mit lokalen Produktillustrationen, Warenkorb und erfundenen Bestellungen ohne Adresse oder Zahlungsdaten.
 - Wickipedia mit Artikeln, Inhaltsnavigation, Infoboxen, Diskussion und Schriftgrößen.
 - ChatGPP mit einer absichtlich nutzlosen Gesprächslogik: Aufgabe, Gesprächsschritt, Beobachtungen und Verlauf bleiben erhalten. „2 plus 2“ → „Taschenrechner öffnen“ → „Hab ich“ → ausführliche Tastaturanleitung → „4“ → ChatGPP übernimmt das fremde Ergebnis. Weitere Abläufe für Wetter, Rezepte, Programmieren, Paketverfolgung und Übersetzen.
@@ -63,7 +63,8 @@ Das Vorschaubild für geteilte Links (`assets/og-image.png`, 1200 × 630) erzeug
 - `engine.js`: Erkennung, Kombination und Auswahl weniger oft verwendeter Ergebnisvorlagen.
 - `chat-engine.js`: unabhängige, mehrstufige Gesprächszustände für ChatGPP.
 - `serp.js` / `serp-content.js`: Gurgel-Übersicht, Anzeigen, Ähnliche Fragen und Knowledge Panel. Die Auswahl ist pro Seed deterministisch.
-- `video-scenes.js`: lokale Animationen, gesteuert durch den Video-Player.
+- `video-scripts.js`: Drehbücher der YouTuba-Videos und Bausteine für Suchvideos.
+- `video-scenes.js`: setzt die Drehbücher als Szene um, gesteuert durch die Zeit des Video-Players.
 - `news-copy.js`: verschiedene Formen und Texte der regionalen Meldungen.
 - `app.js`: Routing, Darstellung und Interaktionen.
 - `world-content.js`: Anbieter, Produkte, Videos, Bewertungen, Kommentare, Speisekarten, Serien, Social-Beiträge und unerwünschte Mails.
